@@ -1,0 +1,42 @@
+<Window x:Class="Kilim.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Kilim" WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" ShowInTaskbar="False"
+        FontFamily="Segoe UI Variable Text, Segoe UI" UseLayoutRounding="True"
+        MouseLeftButtonDown="OnDown" MouseMove="OnMove" MouseLeftButtonUp="OnUp" MouseLeave="OnLeave"
+        KeyDown="OnKey">
+    <Grid>
+        <!-- A wide soft shadow plus a tight one where the rug touches the desk. They share one untransformed
+             layer so the part under a lifted corner can be faded out in window coordinates. -->
+        <Grid x:Name="Shadows" IsHitTestVisible="False">
+        <Image x:Name="AmbientShadow" Opacity="0.30" IsHitTestVisible="False" Stretch="None"
+               HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5">
+            <Image.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform x:Name="AmbientScale"/>
+                    <TranslateTransform x:Name="AmbientOffset" Y="5"/>
+                </TransformGroup>
+            </Image.RenderTransform>
+        </Image>
+        <Image x:Name="ContactShadow" Opacity="0.45" IsHitTestVisible="False" Stretch="None"
+               HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Image.RenderTransform><TranslateTransform Y="1.5"/></Image.RenderTransform>
+        </Image>
+        </Grid>
+
+        <!-- Under the rug is the desktop itself. The floor is all but transparent: just enough
+             alpha that clicks between the hidden items stay with the rug. -->
+        <Canvas x:Name="Floor" ClipToBounds="True" Background="#01000000" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Canvas x:Name="Tiles"/>
+        </Canvas>
+
+        <Viewport3D x:Name="BaseView" IsHitTestVisible="False" ClipToBounds="False"/>
+
+        <Path x:Name="FlapShadow" Fill="Black" Opacity="0.34" IsHitTestVisible="False">
+            <Path.Effect><BlurEffect Radius="10" KernelType="Gaussian"/></Path.Effect>
+        </Path>
+
+        <Viewport3D x:Name="FlapView" IsHitTestVisible="False" ClipToBounds="False"/>
+    </Grid>
+</Window>

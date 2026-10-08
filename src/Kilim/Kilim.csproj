@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>Kilim</AssemblyName>
+    <RootNamespace>Kilim</RootNamespace>
+
+    <Version>0.1.0</Version>
+    <Product>Kilim</Product>
+    <Description>Sweep your desktop clutter under a Turkish rug.</Description>
+    <Authors>İbrahim Can Sancar</Authors>
+    <Copyright>Copyright (c) 2026 İbrahim Can Sancar</Copyright>
+    <RepositoryUrl>https://github.com/ibrahimsancar/kilim</RepositoryUrl>
+
+    <!-- Same source, same binary: lets anyone check a release against the code. -->
+    <Deterministic>true</Deterministic>
+    <PathMap>$(MSBuildProjectDirectory)=/src/Kilim</PathMap>
+  </PropertyGroup>
+
+  <!-- One exe that runs without installing .NET. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\Patterns\*.jpg" />
+  </ItemGroup>
+
+</Project>

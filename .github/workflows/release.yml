@@ -1,0 +1,53 @@
+name: Release
+
+# A release is made only from a version tag (for example v0.1.0) pushed by the maintainer.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: windows-latest
+    permissions:
+      contents: write      # create the GitHub release
+      id-token: write      # sign the build provenance
+      attestations: write  # publish the build provenance
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Safety tests
+        run: dotnet run --project tests/SafetyTests/SafetyTests.csproj -c Release
+
+      - name: Build the single-file exe
+        shell: pwsh
+        run: |
+          foreach ($rid in 'win-x64', 'win-arm64') {
+            dotnet publish src/Kilim/Kilim.csproj -c Release -r $rid -o "out/$rid" -p:ContinuousIntegrationBuild=true
+            Copy-Item "out/$rid/Kilim.exe" "Kilim-$rid.exe"
+          }
+          Get-FileHash Kilim-*.exe -Algorithm SHA256 |
+            ForEach-Object { "{0}  {1}" -f $_.Hash.ToLower(), (Split-Path $_.Path -Leaf) } |
+            Set-Content SHA256SUMS.txt
+          Get-Content SHA256SUMS.txt
+
+      # Signed record that these files were built here, from this commit.
+      # Anyone can check it with: gh attestation verify Kilim-win-x64.exe --repo <owner>/kilim
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: 'Kilim-*.exe'
+
+      - name: Create the release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: gh release create $env:TAG Kilim-win-x64.exe Kilim-win-arm64.exe SHA256SUMS.txt --title "Kilim $env:TAG" --generate-notes
